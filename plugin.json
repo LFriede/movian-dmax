@@ -1,0 +1,15 @@
+{
+  "description": "This plugin enables you to view full TV episodes from DMAX (german TV station) series in Movian.\n\nIf there are any issues, ideas, wishes etc. visit this project on GitHub:\nhttps://github.com/LFriede/movian-dmax",
+  "author": "gordon--",
+  "title": "DMAX",
+  "synopsis": "DMAX, german TV station. Full episodes!",
+  "version": "0.1",
+  "file": "dmax.js",
+  "showtimeVersion": "5.0.274",
+  "type": "ecmascript",
+  "id": "dmax",
+  "icon": "DMAX.svg",
+  "category": "video",
+  "apiversion": 2,
+  "homepage": "https://github.com/LFriede"
+}
