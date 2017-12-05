@@ -4,6 +4,12 @@ var page = require('showtime/page');
 var http = require('showtime/http');
 var html = require('showtime/html');
 
+// Check architecture endian
+var switchEndian = true;
+var f = new Float64Array(1);
+f[0] = 1;
+if (f.buffer[0] == 0x3f) { switchEndian = false; }
+
 // Create the service (ie, icon on home screen)
 require('showtime/service').create('DMAX', PREFIX + ':start', 'video', true, Plugin.path + 'DMAX.svg');
 
@@ -71,7 +77,11 @@ new page.Route(PREFIX + ":playEpisode:(.+):(.+)", function(page, seriesName, epi
   var f = new Float64Array(1);
   f[0] = videoId;
   for (var i = 0; i < f.buffer.length; i++) {
-    amfBuffer[amfBuffer.length-36+i] = f.buffer[7-i];
+    if (switchEndian) {  // reversed byte order depending on system
+      amfBuffer[amfBuffer.length-36+i] = f.buffer[7-i];
+    } else {
+      amfBuffer[amfBuffer.length-36+i] = f.buffer[i];
+    }
   }
 
   // Now do an amf request
