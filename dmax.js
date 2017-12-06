@@ -109,7 +109,7 @@ new page.Route(PREFIX + ":playEpisode:(.+):(.+)", function(page, seriesName, epi
         str = str.substr(0, str.indexOf('.mp4')+4);
 
         // Profit
-        page.source = str;
+        page.source = 'videoparams: {"title": "'+episodeName+'", "sources": [{"url": "'+str+'"}], "no_fs_scan": true, "canonicalUrl": "'+page.root.url+'"}';
       } catch (e) {
         page.error(e);
       }
