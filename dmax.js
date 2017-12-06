@@ -134,15 +134,27 @@ new page.Route(PREFIX + ":listEpisodes:(.+):(.+)", function(page, seriesName, se
     } else {
       try {
         var dom = html.parse(result.toString());
-        var elem = dom.root.getElementByClassName('dni-episode-browser-item');
+        var elem = dom.root.getElementByClassName('pagetype-video');
         for (var i = 0; i < elem.length; i++) {
-          var rgx = elem[i].attributes.getNamedItem('href').value.match(/programme\/(.+)\/videos\/(.+)\//);
+          // On some pages "pagetype-video" classed elements are links, on some they contain a link.
+          var currentElem = null;
+          if (elem[i].nodeName == 'a') {
+            currentElem = elem[i];
+          } else {
+            currentElem = elem[i].getElementByTagName('a')[0];
+          }
+
+          var rgx = currentElem.attributes.getNamedItem('href').value.match(/programme\/(.+)\/videos\/(.+)\//);
           if (rgx) {
             if (rgx.length != 3) {continue;}
 
             var episodeTitle = 'Episode '+parseInt(i+1);
             try {
-              episodeTitle += ' - '+elem[i].getElementByClassName('item-title')[0].textContent;
+              var titleElement = elem[i].getElementByClassName('item-title');
+              if (titleElement.length == 0) {
+                titleElement = elem[i].getElementByTagName('h3');
+              }
+              episodeTitle += ' - '+titleElement[0].textContent;
             } catch (e) {}
 
             var episodeImage = null;
@@ -168,13 +180,13 @@ new page.Route(PREFIX + ":listEpisodes:(.+):(.+)", function(page, seriesName, se
 
 
 // Series was chosen, list seasons
-// TODO: Wenn nicht nach Staffeln sortiert (Die Abholzer) dann Videoseite aufrufen und Kram auflisten.
 new page.Route(PREFIX + ":listSeasons:(.+)", function(page, seriesName) {
   // Set metadata (type, title, icon)
   page.type = 'directory';
   page.metadata.title = 'DMAX - '+seriesName+' - Staffeln';
   page.metadata.icon = Plugin.path + 'DMAX.svg';
   page.loading = true;
+  var pageEmpty = true;
 
   http.request('http://dmax.de/programme/'+seriesName+'/', {compression: true}, function(err, result) {
     page.loading = false;
@@ -189,8 +201,14 @@ new page.Route(PREFIX + ":listSeasons:(.+)", function(page, seriesName) {
           var rgx = elem[i].attributes.getNamedItem('href').value.match(/programme\/(.+)\/(.+)\//);
           if (rgx) {
             if (rgx.length != 3) {continue;}
+            pageEmpty = false;
             page.appendItem(PREFIX+':listEpisodes:'+rgx[1]+':'+rgx[2], 'directory', {title: elem[i].textContent});
           }
+        }
+
+        // If no seasons are listed until here we try to get some videos by a page redirect.
+        if (pageEmpty) {
+          page.redirect(PREFIX + ':listEpisodes:'+seriesName+':videos');
         }
       } catch (e) {
         page.error(e);
