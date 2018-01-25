@@ -3,7 +3,7 @@
   "author": "gordon--",
   "title": "DMAX",
   "synopsis": "DMAX, german TV station. Full episodes!",
-  "version": "0.1",
+  "version": "0.2",
   "file": "dmax.js",
   "showtimeVersion": "5.0.274",
   "type": "ecmascript",
